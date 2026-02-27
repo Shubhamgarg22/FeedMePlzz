@@ -9,7 +9,7 @@ import {
 } from "react-router-dom";
 import { Provider } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
-import { Home, History, MessageSquare, Brain, User, LogOut } from "lucide-react";
+import { Home, History, MessageSquare, Brain, User } from "lucide-react";
 import { store } from "./store";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setUser, setLoading, logout } from "./store/slices/authSlice";
@@ -69,9 +69,9 @@ const BottomNav: React.FC = () => {
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>
@@ -89,29 +89,57 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({
 // Auth State Listener
 const AuthListener: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const dispatch = useAppDispatch();
+  const [initialized, setInitialized] = React.useState(false);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        try {
-          const token = await firebaseUser.getIdToken();
-          localStorage.setItem("token", token);
-          api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    // Check if auth is properly initialized
+    if (!auth || typeof auth.onAuthStateChanged !== 'function') {
+      console.warn("Firebase auth not properly initialized, running in demo mode");
+      dispatch(setLoading(false));
+      setInitialized(true);
+      return;
+    }
 
-          const response = await api.get("/auth/me");
-          dispatch(setUser(response.data));
-        } catch (error) {
-          console.error("Error fetching user:", error);
+    try {
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          try {
+            const token = await firebaseUser.getIdToken();
+            localStorage.setItem("token", token);
+            api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+
+            const response = await api.get("/auth/me");
+            dispatch(setUser(response.data));
+          } catch (error) {
+            console.error("Error fetching user:", error);
+            dispatch(logout());
+          }
+        } else {
           dispatch(logout());
         }
-      } else {
-        dispatch(logout());
-      }
-      dispatch(setLoading(false));
-    });
+        dispatch(setLoading(false));
+        setInitialized(true);
+      });
 
-    return () => unsubscribe();
+      return () => unsubscribe();
+    } catch (error) {
+      console.error("Firebase auth error:", error);
+      dispatch(setLoading(false));
+      setInitialized(true);
+    }
   }, [dispatch]);
+
+  // Show loading while initializing
+  if (!initialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-green-700">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   return <>{children}</>;
 };
@@ -128,9 +156,9 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Main App Routes
 const AppRoutes: React.FC = () => {
-  const { isAuthenticated, loading } = useAppSelector((state) => state.auth);
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent"></div>

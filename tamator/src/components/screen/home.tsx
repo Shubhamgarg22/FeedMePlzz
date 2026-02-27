@@ -59,7 +59,7 @@ const Home: React.FC = () => {
               message: "Enable location for nearby donations",
             })
           );
-          dispatch(fetchAvailableDonations());
+          dispatch(fetchAvailableDonations({}));
         }
       );
     }
@@ -140,7 +140,7 @@ const Home: React.FC = () => {
                   })
                 );
               } else {
-                dispatch(fetchAvailableDonations());
+                dispatch(fetchAvailableDonations({}));
               }
             }}
           >

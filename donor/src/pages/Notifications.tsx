@@ -10,16 +10,16 @@ import {
   Clock,
   AlertCircle,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
 import {
   fetchNotifications,
-  markAsRead,
-  markAllAsRead,
+  markNotificationAsRead,
+  markAllNotificationsAsRead,
   deleteNotification,
-} from "../../store/slices/notificationsSlice";
-import Layout from "../layout/Layout";
-import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+} from "../store/slices/notificationsSlice";
+import Layout from "../components/layout/Layout";
+import { Button } from "../components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 
 const Notifications: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -28,7 +28,7 @@ const Notifications: React.FC = () => {
   );
 
   useEffect(() => {
-    dispatch(fetchNotifications());
+    dispatch(fetchNotifications({}));
   }, [dispatch]);
 
   const getNotificationIcon = (type: string) => {
@@ -64,11 +64,11 @@ const Notifications: React.FC = () => {
   };
 
   const handleMarkAsRead = (id: string) => {
-    dispatch(markAsRead(id));
+    dispatch(markNotificationAsRead(id));
   };
 
   const handleMarkAllAsRead = () => {
-    dispatch(markAllAsRead());
+    dispatch(markAllNotificationsAsRead());
   };
 
   const handleDelete = (id: string) => {

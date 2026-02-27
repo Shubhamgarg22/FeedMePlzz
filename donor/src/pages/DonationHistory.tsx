@@ -13,22 +13,22 @@ import {
   MapPin,
   Calendar,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchMyDonations, deleteDonation } from "../../store/slices/donationsSlice";
-import { addToast } from "../../store/slices/uiSlice";
-import Layout from "../layout/Layout";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Badge } from "../ui/badge";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchMyDonations, deleteDonation } from "../store/slices/donationsSlice";
+import { addToast } from "../store/slices/uiSlice";
+import Layout from "../components/layout/Layout";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Badge } from "../components/ui/badge";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Card, CardContent } from "../ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "../ui/tabs";
+} from "../components/ui/select";
+import { Card, CardContent } from "../components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "../components/ui/tabs";
 
 const DonationHistory: React.FC = () => {
   const dispatch = useAppDispatch();

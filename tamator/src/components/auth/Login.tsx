@@ -9,7 +9,7 @@ import { setError, clearError } from "../../store/slices/authSlice";
 
 const Login: React.FC = () => {
   const dispatch = useAppDispatch();
-  const { error, loading } = useAppSelector((state) => state.auth);
+  const { error } = useAppSelector((state) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);

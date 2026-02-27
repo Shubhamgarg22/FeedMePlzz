@@ -82,7 +82,7 @@ const initialState: DonationsState = {
 export const fetchDonations = createAsyncThunk(
   "donations/fetchAll",
   async (
-    params?: {
+    params: {
       status?: string;
       foodType?: string;
       search?: string;
@@ -91,8 +91,8 @@ export const fetchDonations = createAsyncThunk(
       lat?: number;
       lng?: number;
       radius?: number;
-    },
-    { rejectWithValue }
+    } = {},
+    { rejectWithValue }: any
   ) => {
     try {
       const response = await donationsAPI.getAll(params);
@@ -108,8 +108,8 @@ export const fetchDonations = createAsyncThunk(
 export const fetchMyDonations = createAsyncThunk(
   "donations/fetchMy",
   async (
-    params?: { status?: string; page?: number; limit?: number },
-    { rejectWithValue }
+    params: { status?: string; page?: number; limit?: number } = {},
+    { rejectWithValue }: any
   ) => {
     try {
       const response = await donationsAPI.getMy(params);

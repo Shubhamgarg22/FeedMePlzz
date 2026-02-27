@@ -11,12 +11,12 @@ import {
   Leaf,
   Users,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { fetchMyDonations, fetchDonationStats } from "../../store/slices/donationsSlice";
-import Layout from "../layout/Layout";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
-import { Button } from "../ui/button";
-import { Badge } from "../ui/badge";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { fetchMyDonations, fetchDonationStats } from "../store/slices/donationsSlice";
+import Layout from "../components/layout/Layout";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
 
 const Dashboard: React.FC = () => {
   const dispatch = useAppDispatch();

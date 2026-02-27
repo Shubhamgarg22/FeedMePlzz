@@ -57,19 +57,30 @@ app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
-// Database connection
-mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/surplus_food")
-  .then(() => {
-    console.log("✅ MongoDB connected successfully");
-    app.listen(PORT, () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
-    });
-  })
-  .catch((err) => {
-    console.error("❌ MongoDB connection error:", err);
-    process.exit(1);
+// Database connection (optional in demo mode)
+const SKIP_DB = process.env.SKIP_DB === "true";
+
+if (SKIP_DB) {
+  console.log("⚠️  Running in DEMO MODE without MongoDB");
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
+    console.log(`⚠️  Database: DISABLED (demo mode)`);
   });
+} else {
+  mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/surplus_food")
+    .then(() => {
+      console.log("✅ MongoDB connected successfully");
+      app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+        console.log(`📍 Environment: ${process.env.NODE_ENV || "development"}`);
+      });
+    })
+    .catch((err) => {
+      console.error("❌ MongoDB connection error:", err);
+      process.exit(1);
+    });
+}
 
 // Handle unhandled promise rejections
 process.on("unhandledRejection", (err) => {

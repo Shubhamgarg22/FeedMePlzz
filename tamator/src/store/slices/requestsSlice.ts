@@ -104,7 +104,7 @@ export const updateVolunteerLocation = createAsyncThunk(
 
 export const fetchMyRequests = createAsyncThunk(
   "requests/fetchMy",
-  async (params?: any, { rejectWithValue }) => {
+  async (params: any = {}, { rejectWithValue }) => {
     try {
       const response = await requestsAPI.getMyRequests(params);
       return response.data;

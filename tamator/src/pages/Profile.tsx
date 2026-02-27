@@ -5,7 +5,6 @@ import {
   User,
   Mail,
   Phone,
-  MapPin,
   Settings,
   Bell,
   Shield,
@@ -14,7 +13,6 @@ import {
   Star,
   Award,
   Truck,
-  Edit,
   Camera,
 } from "lucide-react";
 import { signOut } from "firebase/auth";

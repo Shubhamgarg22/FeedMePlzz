@@ -13,22 +13,22 @@ import {
   Package,
   Star,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { updateUserProfile } from "../../store/slices/authSlice";
-import { addToast } from "../../store/slices/uiSlice";
-import { uploadProfileImage } from "../../services/storage";
-import Layout from "../layout/Layout";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { updateUserProfile } from "../store/slices/authSlice";
+import { addToast } from "../store/slices/uiSlice";
+import { uploadProfileImage } from "../services/storage";
+import Layout from "../components/layout/Layout";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+} from "../components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 
 const Profile: React.FC = () => {
   const dispatch = useAppDispatch();

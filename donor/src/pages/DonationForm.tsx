@@ -12,23 +12,23 @@ import {
   Camera,
   AlertTriangle,
 } from "lucide-react";
-import { useAppDispatch, useAppSelector } from "../../store/hooks";
-import { createDonation } from "../../store/slices/donationsSlice";
-import { addToast } from "../../store/slices/uiSlice";
-import { uploadDonationImage, compressImage } from "../../services/storage";
-import Layout from "../layout/Layout";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { Textarea } from "../ui/textarea";
+import { useAppDispatch, useAppSelector } from "../store/hooks";
+import { createDonation } from "../store/slices/donationsSlice";
+import { addToast } from "../store/slices/uiSlice";
+import { uploadDonationImage, compressImage } from "../services/storage";
+import Layout from "../components/layout/Layout";
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Label } from "../components/ui/label";
+import { Textarea } from "../components/ui/textarea";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+} from "../components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
 
 const DonationForm: React.FC = () => {
   const dispatch = useAppDispatch();

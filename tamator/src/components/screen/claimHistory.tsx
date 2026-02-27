@@ -23,7 +23,7 @@ const ClaimHistory: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    dispatch(fetchMyRequests());
+    dispatch(fetchMyRequests({}));
   }, [dispatch]);
 
   const getStatusConfig = (status: string) => {

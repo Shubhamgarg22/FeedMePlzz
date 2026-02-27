@@ -21,7 +21,7 @@ const AIInsight: React.FC = () => {
   const { myRequests } = useAppSelector((state) => state.requests);
 
   useEffect(() => {
-    dispatch(fetchMyRequests());
+    dispatch(fetchMyRequests({}));
   }, [dispatch]);
 
   const completedCount = myRequests.filter((r: any) => r.status === "delivered").length;

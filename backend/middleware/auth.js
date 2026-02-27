@@ -1,8 +1,12 @@
 const admin = require("firebase-admin");
 const User = require("../model/User");
 
-// Initialize Firebase Admin SDK
-if (!admin.apps.length) {
+// Initialize Firebase Admin SDK only if credentials are provided
+const isFirebaseConfigured = process.env.FIREBASE_PROJECT_ID && 
+  process.env.FIREBASE_PRIVATE_KEY && 
+  process.env.FIREBASE_CLIENT_EMAIL;
+
+if (isFirebaseConfigured && !admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
@@ -17,6 +21,21 @@ if (!admin.apps.length) {
  */
 const verifyToken = async (req, res, next) => {
   try {
+    // Development mode bypass - skip auth if Firebase not configured
+    if (!isFirebaseConfigured && process.env.NODE_ENV !== "production") {
+      // For development, try to get user from header or use a test user
+      const testUserId = req.headers["x-test-user-id"];
+      if (testUserId) {
+        const user = await User.findById(testUserId);
+        if (user) {
+          req.user = user;
+          return next();
+        }
+      }
+      // Continue without user for public routes
+      return next();
+    }
+
     const authHeader = req.headers.authorization;
     
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
