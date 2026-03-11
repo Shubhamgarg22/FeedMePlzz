@@ -13,10 +13,10 @@ const {
 
 /**
  * @route   POST /api/requests/accept
- * @desc    Accept a donation request (volunteer claims donation)
- * @access  Private (Volunteer only)
+ * @desc    Accept a donation request (receiver claims donation)
+ * @access  Private (Receiver only)
  */
-router.post("/accept", verifyToken, requireRole("volunteer", "admin"), asyncHandler(async (req, res) => {
+router.post("/accept", verifyToken, requireRole("receiver", "admin"), asyncHandler(async (req, res) => {
   const { donationId, notes } = req.body;
 
   if (!donationId) {
@@ -34,9 +34,9 @@ router.post("/accept", verifyToken, requireRole("volunteer", "admin"), asyncHand
     throw new ApiError(400, "Donation is no longer available");
   }
 
-  // Check if volunteer already has an active request
+  // Check if receiver already has an active request
   const existingRequest = await Request.findOne({
-    volunteerId: req.user._id,
+    receiverId: req.user._id,
     status: { $in: ["pending", "accepted", "picked_up"] },
   });
 
@@ -47,7 +47,7 @@ router.post("/accept", verifyToken, requireRole("volunteer", "admin"), asyncHand
   // Create request
   const request = new Request({
     donationId,
-    volunteerId: req.user._id,
+    receiverId: req.user._id,
     donorId: donation.donorId,
     status: "accepted",
     acceptedTime: new Date(),
@@ -60,14 +60,14 @@ router.post("/accept", verifyToken, requireRole("volunteer", "admin"), asyncHand
   donation.status = "accepted";
   await donation.save();
 
-  // Get donor and volunteer info for notification
-  const [donor, volunteer] = await Promise.all([
+  // Get donor and receiver info for notification
+  const [donor, receiver] = await Promise.all([
     User.findById(donation.donorId),
     User.findById(req.user._id),
   ]);
 
   // Send notification to donor
-  await notifyDonationAccepted(donation, volunteer, donor);
+  await notifyDonationAccepted(donation, receiver, donor);
 
   res.status(201).json({
     success: true,
@@ -82,10 +82,10 @@ router.post("/accept", verifyToken, requireRole("volunteer", "admin"), asyncHand
 /**
  * @route   PUT /api/requests/status
  * @desc    Update request status (picked_up, delivered, cancelled)
- * @access  Private (Volunteer only)
+ * @access  Private (Receiver only)
  */
-router.put("/status", verifyToken, requireRole("volunteer", "admin"), asyncHandler(async (req, res) => {
-  const { requestId, status, cancelReason, volunteerLocation } = req.body;
+router.put("/status", verifyToken, requireRole("receiver", "admin"), asyncHandler(async (req, res) => {
+  const { requestId, status, cancelReason, receiverLocation } = req.body;
 
   if (!requestId || !status) {
     throw new ApiError(400, "Request ID and status are required");
@@ -104,7 +104,7 @@ router.put("/status", verifyToken, requireRole("volunteer", "admin"), asyncHandl
   }
 
   // Check ownership
-  if (request.volunteerId.toString() !== req.user._id.toString() && req.user.role !== "admin") {
+  if (request.receiverId.toString() !== req.user._id.toString() && req.user.role !== "admin") {
     throw new ApiError(403, "Not authorized to update this request");
   }
 
@@ -126,12 +126,12 @@ router.put("/status", verifyToken, requireRole("volunteer", "admin"), asyncHandl
   } else if (status === "delivered") {
     request.completionTime = new Date();
   } else if (status === "cancelled") {
-    request.cancelReason = cancelReason || "Cancelled by volunteer";
+    request.cancelReason = cancelReason || "Cancelled by receiver";
   }
 
-  if (volunteerLocation) {
-    request.volunteerLocation = {
-      ...volunteerLocation,
+  if (receiverLocation) {
+    request.receiverLocation = {
+      ...receiverLocation,
       updatedAt: new Date(),
     };
   }
@@ -152,19 +152,19 @@ router.put("/status", verifyToken, requireRole("volunteer", "admin"), asyncHandl
   }
 
   // Get user info for notifications
-  const [donor, volunteer] = await Promise.all([
+  const [donor, receiver] = await Promise.all([
     User.findById(request.donorId),
-    User.findById(request.volunteerId),
+    User.findById(request.receiverId),
   ]);
 
   // Send notifications
   if (status === "picked_up") {
-    await notifyPickupConfirmed(donation, volunteer, donor);
+    await notifyPickupConfirmed(donation, receiver, donor);
   } else if (status === "delivered") {
-    await notifyDeliveryCompleted(donation, volunteer, donor);
+    await notifyDeliveryCompleted(donation, receiver, donor);
     
-    // Update volunteer's pickup count
-    await User.findByIdAndUpdate(request.volunteerId, {
+    // Update receiver's pickup count
+    await User.findByIdAndUpdate(request.receiverId, {
       $inc: { totalPickups: 1 },
     });
   }
@@ -178,10 +178,10 @@ router.put("/status", verifyToken, requireRole("volunteer", "admin"), asyncHandl
 
 /**
  * @route   PUT /api/requests/:id/location
- * @desc    Update volunteer location (for tracking)
- * @access  Private (Volunteer only)
+ * @desc    Update receiver location (for tracking)
+ * @access  Private (Receiver only)
  */
-router.put("/:id/location", verifyToken, requireRole("volunteer"), asyncHandler(async (req, res) => {
+router.put("/:id/location", verifyToken, requireRole("receiver"), asyncHandler(async (req, res) => {
   const { lat, lng } = req.body;
 
   if (!lat || !lng) {
@@ -194,11 +194,11 @@ router.put("/:id/location", verifyToken, requireRole("volunteer"), asyncHandler(
     throw new ApiError(404, "Request not found");
   }
 
-  if (request.volunteerId.toString() !== req.user._id.toString()) {
+  if (request.receiverId.toString() !== req.user._id.toString()) {
     throw new ApiError(403, "Not authorized");
   }
 
-  request.volunteerLocation = {
+  request.receiverLocation = {
     lat,
     lng,
     updatedAt: new Date(),
@@ -214,13 +214,13 @@ router.put("/:id/location", verifyToken, requireRole("volunteer"), asyncHandler(
 
 /**
  * @route   GET /api/requests/my
- * @desc    Get volunteer's requests
- * @access  Private (Volunteer only)
+ * @desc    Get receiver's requests
+ * @access  Private (Receiver only)
  */
-router.get("/my", verifyToken, requireRole("volunteer", "admin"), asyncHandler(async (req, res) => {
+router.get("/my", verifyToken, requireRole("receiver", "admin"), asyncHandler(async (req, res) => {
   const { status, page = 1, limit = 20 } = req.query;
 
-  const query = { volunteerId: req.user._id };
+  const query = { receiverId: req.user._id };
   if (status && status !== "all") {
     query.status = status;
   }
@@ -265,7 +265,7 @@ router.get("/donation/:donationId", verifyToken, asyncHandler(async (req, res) =
   }
 
   const requests = await Request.find({ donationId: req.params.donationId })
-    .populate("volunteerId", "name phone rating profileImage")
+    .populate("receiverId", "name phone rating profileImage")
     .sort({ createdAt: -1 });
 
   res.json({
@@ -283,7 +283,7 @@ router.get("/:id", verifyToken, asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id)
     .populate("donationId")
     .populate("donorId", "name phone address organizationName profileImage")
-    .populate("volunteerId", "name phone profileImage");
+    .populate("receiverId", "name phone profileImage");
 
   if (!request) {
     throw new ApiError(404, "Request not found");
@@ -291,7 +291,7 @@ router.get("/:id", verifyToken, asyncHandler(async (req, res) => {
 
   // Check authorization
   const isAuthorized = 
-    request.volunteerId._id.toString() === req.user._id.toString() ||
+    request.receiverId._id.toString() === req.user._id.toString() ||
     request.donorId._id.toString() === req.user._id.toString() ||
     req.user.role === "admin";
 
@@ -340,12 +340,12 @@ router.post("/:id/rate", verifyToken, requireRole("donor"), asyncHandler(async (
   request.feedback = feedback || "";
   await request.save();
 
-  // Update volunteer's rating
-  const volunteer = await User.findById(request.volunteerId);
-  const newRatingCount = volunteer.ratingCount + 1;
-  const newRating = ((volunteer.rating * volunteer.ratingCount) + rating) / newRatingCount;
+  // Update receiver's rating
+  const receiver = await User.findById(request.receiverId);
+  const newRatingCount = receiver.ratingCount + 1;
+  const newRating = ((receiver.rating * receiver.ratingCount) + rating) / newRatingCount;
 
-  await User.findByIdAndUpdate(request.volunteerId, {
+  await User.findByIdAndUpdate(request.receiverId, {
     rating: newRating,
     ratingCount: newRatingCount,
   });

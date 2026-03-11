@@ -20,12 +20,12 @@ export interface Request {
       phone: string;
     };
   };
-  volunteerId: string;
+  receiverId: string;
   status: "accepted" | "picked_up" | "delivered" | "cancelled";
   acceptedAt: string;
   pickedUpAt?: string;
   deliveredAt?: string;
-  volunteerLocation?: {
+  receiverLocation?: {
     lat: number;
     lng: number;
     updatedAt: string;
@@ -85,7 +85,7 @@ export const updateRequestStatus = createAsyncThunk(
   }
 );
 
-export const updateVolunteerLocation = createAsyncThunk(
+export const updateReceiverLocation = createAsyncThunk(
   "requests/updateLocation",
   async (
     { requestId, lat, lng }: { requestId: string; lat: number; lng: number },

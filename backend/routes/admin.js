@@ -74,7 +74,7 @@ router.get("/users/:id", verifyToken, requireRole("admin"), asyncHandler(async (
   // Get user's activity stats
   const [donationsCount, requestsCount] = await Promise.all([
     Donation.countDocuments({ donorId: req.params.id }),
-    Request.countDocuments({ volunteerId: req.params.id }),
+    Request.countDocuments({ receiverId: req.params.id }),
   ]);
 
   res.json({
@@ -219,7 +219,7 @@ router.get("/requests", verifyToken, requireRole("admin"), asyncHandler(async (r
   const [requests, total] = await Promise.all([
     Request.find(query)
       .populate("donationId", "foodName quantity status")
-      .populate("volunteerId", "name email")
+      .populate("receiverId", "name email")
       .populate("donorId", "name email")
       .sort({ createdAt: -1 })
       .skip(skip)
@@ -246,7 +246,7 @@ router.get("/stats", verifyToken, requireRole("admin"), asyncHandler(async (req,
   const [
     totalUsers,
     totalDonors,
-    totalVolunteers,
+    totalReceivers,
     totalDonations,
     activeDonations,
     completedDonations,
@@ -255,7 +255,7 @@ router.get("/stats", verifyToken, requireRole("admin"), asyncHandler(async (req,
   ] = await Promise.all([
     User.countDocuments(),
     User.countDocuments({ role: "donor" }),
-    User.countDocuments({ role: "volunteer" }),
+    User.countDocuments({ role: "receiver" }),
     Donation.countDocuments(),
     Donation.countDocuments({ status: "available" }),
     Donation.countDocuments({ status: "delivered" }),
@@ -307,7 +307,7 @@ router.get("/stats", verifyToken, requireRole("admin"), asyncHandler(async (req,
       users: {
         total: totalUsers,
         donors: totalDonors,
-        volunteers: totalVolunteers,
+        receivers: totalReceivers,
         pendingVerifications,
       },
       donations: {

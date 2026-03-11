@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  allowedRoles?: ("donor" | "volunteer" | "admin")[];
+  allowedRoles?: ("donor" | "receiver" | "admin")[];
   requireVerified?: boolean;
 }
 
@@ -42,8 +42,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
     const redirectPath =
       user.role === "admin"
         ? "/admin"
-        : user.role === "volunteer"
-        ? "/volunteer"
+        : user.role === "receiver"
+        ? "/receiver"
         : "/dashboard";
     return <Navigate to={redirectPath} replace />;
   }

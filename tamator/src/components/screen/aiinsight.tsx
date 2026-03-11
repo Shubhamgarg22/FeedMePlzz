@@ -75,7 +75,7 @@ const AIInsight: React.FC = () => {
       icon: Users,
     },
     {
-      title: "Consistent Volunteer",
+      title: "Consistent Receiver",
       description: "Completed 10 deliveries",
       earned: completedCount >= 10,
       icon: BarChart3,
@@ -249,7 +249,7 @@ const AIInsight: React.FC = () => {
               </div>
               <div className="pt-3 border-t border-white/20">
                 <p className="text-sm text-indigo-100">
-                  Great work! You're in the top 10% of volunteers this week. 🎉
+                  Great work! You're in the top 10% of receivers this week. 🎉
                 </p>
               </div>
             </div>

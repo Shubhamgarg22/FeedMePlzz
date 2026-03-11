@@ -129,7 +129,7 @@ const Notifications: React.FC = () => {
               <Bell className="w-16 h-16 mx-auto text-gray-300 mb-4" />
               <p className="text-gray-500 text-lg">No notifications yet</p>
               <p className="text-gray-400 text-sm mt-1">
-                You'll be notified when volunteers accept your donations
+                You'll be notified when receivers accept your donations
               </p>
             </CardContent>
           </Card>

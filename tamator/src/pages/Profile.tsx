@@ -98,11 +98,11 @@ const Profile: React.FC = () => {
               </div>
               <div className="flex-1">
                 <h2 className="text-xl font-bold text-gray-800">
-                  {user?.name || "Volunteer"}
+                  {user?.name || "Receiver"}
                 </h2>
                 <p className="text-gray-500 text-sm flex items-center gap-1">
                   <Mail className="w-4 h-4" />
-                  {user?.email || "volunteer@example.com"}
+                  {user?.email || "receiver@example.com"}
                 </p>
                 {user?.phone && (
                   <p className="text-gray-500 text-sm flex items-center gap-1 mt-1">
@@ -155,7 +155,7 @@ const Profile: React.FC = () => {
                     ? "Food Hero"
                     : completedDeliveries >= 5
                     ? "Rising Star"
-                    : "New Volunteer"}
+                    : "New Receiver"}
                 </h3>
                 <p className="text-sm text-gray-600">
                   {completedDeliveries >= 10
@@ -224,7 +224,7 @@ const Profile: React.FC = () => {
 
       {/* App Version */}
       <div className="mt-8 text-center text-gray-400 text-sm">
-        <p>FoodRescue Volunteer v1.0.0</p>
+        <p>FoodRescue Receiver v1.0.0</p>
       </div>
 
       {/* Logout Confirmation Modal */}

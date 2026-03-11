@@ -121,7 +121,7 @@ const Home: React.FC = () => {
       <div className="bg-gradient-to-r from-green-600 to-emerald-600 text-white px-4 pt-12 pb-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h1 className="text-2xl font-bold">Hello, {user?.name?.split(" ")[0] || "Volunteer"}!</h1>
+            <h1 className="text-2xl font-bold">Hello, {user?.name?.split(" ")[0] || "Receiver"}!</h1>
             <p className="text-green-100 text-sm">
               {myRequests.filter((r) => r.status === "delivered").length} deliveries completed
             </p>

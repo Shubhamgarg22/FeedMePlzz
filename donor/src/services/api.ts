@@ -30,9 +30,9 @@ api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
+      // Token expired or invalid - clear token but don't redirect
+      // AuthListener handles redirects via ProtectedRoute
       localStorage.removeItem("token");
-      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
@@ -124,7 +124,7 @@ export const requestsAPI = {
 
   updateStatus: (requestId: string, status: string, data?: {
     cancelReason?: string;
-    volunteerLocation?: { lat: number; lng: number };
+    receiverLocation?: { lat: number; lng: number };
   }) => api.put("/requests/status", { requestId, status, ...data }),
 
   updateLocation: (id: string, lat: number, lng: number) =>

@@ -52,7 +52,7 @@ export const authAPI = {
   updateProfile: (data: any) => api.put("/auth/profile", data),
 };
 
-// Donations API - Volunteer focused
+// Donations API - Receiver focused
 export const donationsAPI = {
   getAvailable: (params?: any) => api.get("/donations/available", { params }),
   getNearby: (lat: number, lng: number, radius?: number) =>
@@ -60,7 +60,7 @@ export const donationsAPI = {
   getById: (id: string) => api.get(`/donations/${id}`),
 };
 
-// Requests API - Volunteer actions
+// Requests API - Receiver actions
 export const requestsAPI = {
   accept: (donationId: string, data?: any) =>
     api.post(`/requests/${donationId}/accept`, data),

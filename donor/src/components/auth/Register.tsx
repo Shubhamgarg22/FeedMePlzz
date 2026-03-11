@@ -128,8 +128,8 @@ const Register: React.FC = () => {
       icon: "🍽️",
     },
     {
-      value: "volunteer",
-      label: "Volunteer / NGO",
+      value: "receiver",
+      label: "Receiver / NGO",
       description: "Pickup and distribute food",
       icon: "🤝",
     },

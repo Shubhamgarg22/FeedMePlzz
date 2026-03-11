@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { AnimatePresence } from "framer-motion";
+import { onAuthStateChanged } from "firebase/auth";
 import { store } from "./store";
+import { useAppDispatch } from "./store/hooks";
+import { setUser, setLoading } from "./store/slices/authSlice";
+import { auth } from "./config/firebase";
+import api from "./services/api";
 import { Toaster } from "./components/ui/toaster";
 
 // Auth Components
@@ -20,9 +25,67 @@ import Notifications from "./pages/Notifications";
 // Styles
 import "./App.css";
 
+// Auth State Listener
+const AuthListener: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const dispatch = useAppDispatch();
+  const [initialized, setInitialized] = React.useState(false);
+
+  useEffect(() => {
+    if (!auth || typeof auth.onAuthStateChanged !== 'function') {
+      console.warn("Firebase auth not properly initialized, running in demo mode");
+      dispatch(setLoading(false));
+      setInitialized(true);
+      return;
+    }
+
+    try {
+      const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+        if (firebaseUser) {
+          try {
+            const token = await firebaseUser.getIdToken();
+            localStorage.setItem("token", token);
+            api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+            const response = await api.get("/auth/me");
+            dispatch(setUser(response.data));
+          } catch (error) {
+            console.error("Error fetching user:", error);
+            localStorage.removeItem("token");
+            dispatch(setUser(null));
+          }
+        } else {
+          localStorage.removeItem("token");
+          dispatch(setUser(null));
+        }
+        dispatch(setLoading(false));
+        setInitialized(true);
+      });
+
+      return () => unsubscribe();
+    } catch (error) {
+      console.error("Firebase auth error:", error);
+      dispatch(setLoading(false));
+      setInitialized(true);
+    }
+  }, [dispatch]);
+
+  if (!initialized) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 to-emerald-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-green-500 border-t-transparent mx-auto mb-4"></div>
+          <p className="text-green-700">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <>{children}</>;
+};
+
 const App: React.FC = () => {
   return (
     <Provider store={store}>
+      <AuthListener>
       <BrowserRouter>
         <AnimatePresence mode="wait">
           <Routes>
@@ -79,6 +142,7 @@ const App: React.FC = () => {
         </AnimatePresence>
         <Toaster />
       </BrowserRouter>
+      </AuthListener>
     </Provider>
   );
 };

@@ -77,19 +77,19 @@ const createNotification = async ({
  * Notification templates
  */
 const NotificationTemplates = {
-  donationAccepted: (donorName, foodName, volunteerName) => ({
+  donationAccepted: (donorName, foodName, receiverName) => ({
     title: "Donation Accepted!",
-    message: `${volunteerName} has accepted your ${foodName} donation and will pick it up soon.`,
+    message: `${receiverName} has accepted your ${foodName} donation and will pick it up soon.`,
   }),
 
-  pickupConfirmed: (foodName, volunteerName) => ({
+  pickupConfirmed: (foodName, receiverName) => ({
     title: "Pickup Confirmed",
-    message: `${volunteerName} has picked up the ${foodName} donation. Thank you for your contribution!`,
+    message: `${receiverName} has picked up the ${foodName} donation. Thank you for your contribution!`,
   }),
 
-  deliveryCompleted: (foodName, volunteerName) => ({
+  deliveryCompleted: (foodName, receiverName) => ({
     title: "Delivery Completed",
-    message: `The ${foodName} donation has been successfully delivered by ${volunteerName}.`,
+    message: `The ${foodName} donation has been successfully delivered by ${receiverName}.`,
   }),
 
   newDonationNearby: (donorName, foodName, distance) => ({
@@ -116,11 +116,11 @@ const NotificationTemplates = {
 /**
  * Send notification when donation is accepted
  */
-const notifyDonationAccepted = async (donation, volunteer, donor) => {
+const notifyDonationAccepted = async (donation, receiver, donor) => {
   const { title, message } = NotificationTemplates.donationAccepted(
     donor.name,
     donation.foodName,
-    volunteer.name
+    receiver.name
   );
 
   await createNotification({
@@ -137,10 +137,10 @@ const notifyDonationAccepted = async (donation, volunteer, donor) => {
 /**
  * Send notification when pickup is confirmed
  */
-const notifyPickupConfirmed = async (donation, volunteer, donor) => {
+const notifyPickupConfirmed = async (donation, receiver, donor) => {
   const { title, message } = NotificationTemplates.pickupConfirmed(
     donation.foodName,
-    volunteer.name
+    receiver.name
   );
 
   await createNotification({
@@ -157,10 +157,10 @@ const notifyPickupConfirmed = async (donation, volunteer, donor) => {
 /**
  * Send notification when delivery is completed
  */
-const notifyDeliveryCompleted = async (donation, volunteer, donor) => {
+const notifyDeliveryCompleted = async (donation, receiver, donor) => {
   const { title, message } = NotificationTemplates.deliveryCompleted(
     donation.foodName,
-    volunteer.name
+    receiver.name
   );
 
   // Notify donor
@@ -174,9 +174,9 @@ const notifyDeliveryCompleted = async (donation, volunteer, donor) => {
     phoneNumber: donor.phone,
   });
 
-  // Notify volunteer
+  // Notify receiver
   await createNotification({
-    userId: volunteer._id,
+    userId: receiver._id,
     type: "delivery_completed",
     title: "Delivery Completed",
     message: `You have successfully delivered the ${donation.foodName} donation. Thank you!`,

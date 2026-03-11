@@ -51,7 +51,7 @@ const Login: React.FC = () => {
             <Truck className="w-10 h-10" />
           </div>
           <h1 className="text-3xl font-bold mb-2">FoodRescue</h1>
-          <p className="text-green-100">Volunteer Portal</p>
+          <p className="text-green-100">Receiver Portal</p>
         </motion.div>
       </div>
 

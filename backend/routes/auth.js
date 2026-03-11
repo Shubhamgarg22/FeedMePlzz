@@ -26,7 +26,18 @@ router.post("/register", asyncHandler(async (req, res) => {
   });
   
   if (existingUser) {
-    throw new ApiError(400, "User already exists");
+    // User already exists - return their data instead of error
+    return res.status(200).json({
+      success: true,
+      message: "User already registered",
+      user: {
+        id: existingUser._id,
+        name: existingUser.name,
+        email: existingUser.email,
+        role: existingUser.role,
+        isVerified: existingUser.isVerified,
+      },
+    });
   }
 
   // Create new user

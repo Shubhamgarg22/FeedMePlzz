@@ -26,7 +26,7 @@ const Feedback: React.FC = () => {
   }, [dispatch]);
 
   const completedRequests = myRequests.filter(
-    (r: any) => r.status === "delivered" && !r.volunteerRating
+    (r: any) => r.status === "delivered" && !r.receiverRating
   );
 
   const handleSubmitRating = async () => {

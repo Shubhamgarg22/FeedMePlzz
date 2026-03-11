@@ -14,7 +14,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
-  role: "donor" | "volunteer" | "admin";
+  role: "donor" | "receiver" | "admin";
   isVerified: boolean;
   profileImage?: string;
   organizationName?: string;
@@ -68,17 +68,32 @@ export const registerUser = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      // Create Firebase user
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        data.email,
-        data.password
-      );
+      let userCredential;
+      
+      // Create Firebase user, or sign in if already exists
+      try {
+        userCredential = await createUserWithEmailAndPassword(
+          auth,
+          data.email,
+          data.password
+        );
+      } catch (firebaseError: any) {
+        if (firebaseError.code === "auth/email-already-in-use") {
+          // Firebase user exists but MongoDB user may not - sign in instead
+          userCredential = await signInWithEmailAndPassword(
+            auth,
+            data.email,
+            data.password
+          );
+        } else {
+          throw firebaseError;
+        }
+      }
       
       // Get Firebase token
       const firebaseToken = await userCredential.user.getIdToken();
       
-      // Register in backend
+      // Register in backend (will create MongoDB user if missing)
       const response = await authAPI.register({
         firebaseToken,
         name: data.name,

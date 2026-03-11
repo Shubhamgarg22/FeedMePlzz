@@ -6,7 +6,7 @@ const requestSchema = new mongoose.Schema({
     ref: "Donation",
     required: true,
   },
-  volunteerId: {
+  receiverId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
     required: true,
@@ -38,7 +38,7 @@ const requestSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
-  volunteerLocation: {
+  receiverLocation: {
     lat: Number,
     lng: Number,
     updatedAt: Date,
@@ -74,7 +74,7 @@ requestSchema.pre("save", function (next) {
 
 // Index for faster queries
 requestSchema.index({ donationId: 1, status: 1 });
-requestSchema.index({ volunteerId: 1, status: 1 });
+requestSchema.index({ receiverId: 1, status: 1 });
 requestSchema.index({ donorId: 1, status: 1 });
 
 module.exports = mongoose.model("Request", requestSchema);

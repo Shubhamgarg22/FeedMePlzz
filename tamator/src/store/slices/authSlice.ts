@@ -13,7 +13,7 @@ export interface User {
   name: string;
   email: string;
   phone: string;
-  role: "volunteer";
+  role: "receiver";
   isVerified: boolean;
   organizationName?: string;
   organizationType?: string;
@@ -68,7 +68,7 @@ export const registerUser = createAsyncThunk(
         email: userData.email,
         name: userData.name,
         phone: userData.phone,
-        role: "volunteer",
+        role: "receiver",
         organizationName: userData.organizationName,
         organizationType: userData.organizationType,
       });
@@ -95,7 +95,7 @@ export const loginUser = createAsyncThunk(
         credentials.password
       );
 
-      const response = await authAPI.login({ role: "volunteer" });
+      const response = await authAPI.login({ role: "receiver" });
       return response.data.user;
     } catch (error: any) {
       return rejectWithValue(

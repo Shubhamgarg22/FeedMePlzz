@@ -77,7 +77,7 @@ const Register: React.FC = () => {
         name: formData.name,
         email: formData.email,
         phone: formData.phone,
-        role: "volunteer",
+        role: "receiver",
         address: formData.address,
         additionalInfo: {
           vehicleType: formData.vehicleType,
@@ -118,7 +118,7 @@ const Register: React.FC = () => {
             Welcome Aboard!
           </h2>
           <p className="text-gray-600 mb-4">
-            Your volunteer account has been created successfully.
+            Your receiver account has been created successfully.
           </p>
           <p className="text-sm text-gray-500">Redirecting to dashboard...</p>
         </motion.div>
@@ -139,7 +139,7 @@ const Register: React.FC = () => {
             <Truck className="w-8 h-8" />
           </div>
           <h1 className="text-2xl font-bold mb-1">Join FoodRescue</h1>
-          <p className="text-green-100 text-sm">Become a food rescue volunteer</p>
+          <p className="text-green-100 text-sm">Become a food rescue receiver</p>
         </motion.div>
       </div>
 
