@@ -92,7 +92,6 @@ const Home: React.FC = () => {
   const allDonations = currentLocation ? nearbyDonations : availableDonations;
   const donations = allDonations.filter((d: any) => {
     if (searchTerm && !d.foodName?.toLowerCase().includes(searchTerm.toLowerCase())) return false;
-    if (filters.foodType !== "all" && d.foodType !== filters.foodType) return false;
     if (filters.vegetarianOnly && !d.isVegetarian) return false;
     return true;
   });
@@ -146,19 +145,6 @@ const Home: React.FC = () => {
           Filters
           <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showFilters ? "rotate-180" : ""}`} />
         </button>
-        {["all", "cooked", "packaged", "fresh_produce", "bakery"].map((type) => (
-          <button
-            key={type}
-            onClick={() => dispatch(setFilters({ foodType: type }))}
-            className={`px-3 py-1.5 rounded-full text-sm border whitespace-nowrap ${
-              filters.foodType === type
-                ? "bg-orange-500 border-orange-500 text-white"
-                : "bg-white border-gray-200 text-gray-600"
-            }`}
-          >
-            {type === "all" ? "All" : type === "fresh_produce" ? "Fresh" : type.charAt(0).toUpperCase() + type.slice(1)}
-          </button>
-        ))}
       </div>
 
       {/* Expanded Filters */}

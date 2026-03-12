@@ -128,8 +128,7 @@ const BrowseFood: React.FC = () => {
       !d.foodName?.toLowerCase().includes(searchTerm.toLowerCase())
     )
       return false;
-    if (filters.foodType !== "all" && d.foodType !== filters.foodType)
-      return false;
+    // Removed foodType filtering for receiver tier
     return true;
   });
 

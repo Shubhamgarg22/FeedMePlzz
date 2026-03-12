@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import type { AppDispatch } from "../index";
 
 interface Toast {
   id: string;
@@ -53,13 +54,6 @@ const uiSlice = createSlice({
     addToast: (state, action: PayloadAction<Omit<Toast, "id">>) => {
       const id = Date.now().toString();
       state.toasts.push({ ...action.payload, id });
-      // Auto-remove after 5 seconds
-      setTimeout(() => {
-        const index = state.toasts.findIndex((t) => t.id === id);
-        if (index !== -1) {
-          state.toasts.splice(index, 1);
-        }
-      }, 5000);
     },
     removeToast: (state, action: PayloadAction<string>) => {
       state.toasts = state.toasts.filter((t) => t.id !== action.payload);
@@ -76,6 +70,16 @@ const uiSlice = createSlice({
   },
 });
 
+// Thunk that adds a toast and auto-removes it after 5 seconds
+export const showToast =
+  (toast: Omit<Toast, "id">) => (dispatch: AppDispatch) => {
+    dispatch(uiSlice.actions.addToast(toast));
+    const id = Date.now().toString();
+    setTimeout(() => {
+      dispatch(uiSlice.actions.removeToast(id));
+    }, 5000);
+  };
+
 export const {
   toggleTheme,
   setTheme,
@@ -90,3 +94,4 @@ export const {
 } = uiSlice.actions;
 
 export default uiSlice.reducer;
+
