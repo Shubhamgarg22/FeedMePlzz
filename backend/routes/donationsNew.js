@@ -165,7 +165,7 @@ router.post("/", verifyToken, requireRole("donor", "admin"), asyncHandler(async 
   } = req.body;
 
   // Validation
-  if (!foodType || !foodName || !quantity || !expiryTime || !pickupLocation || !pickupStartTime || !pickupEndTime) {
+  if (!foodType || !foodName || !quantity || !expiryTime || !pickupLocation) {
     throw new ApiError(400, "Missing required fields");
   }
 
@@ -179,12 +179,12 @@ router.post("/", verifyToken, requireRole("donor", "admin"), asyncHandler(async 
     foodType,
     foodName,
     description: description || "",
-    quantity,
+    quantity: Math.round(Number(quantity)),
     quantityUnit: quantityUnit || "meals",
     expiryTime: new Date(expiryTime),
     pickupLocation,
-    pickupStartTime: new Date(pickupStartTime),
-    pickupEndTime: new Date(pickupEndTime),
+    pickupStartTime: pickupStartTime ? new Date(pickupStartTime) : null,
+    pickupEndTime: pickupEndTime ? new Date(pickupEndTime) : null,
     imageUrl: imageUrl || "",
     specialInstructions: specialInstructions || "",
     allergens: allergens || [],

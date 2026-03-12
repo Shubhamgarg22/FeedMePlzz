@@ -11,6 +11,9 @@ import {
   CheckCircle,
   Camera,
   AlertTriangle,
+  Home,
+  Navigation,
+  Edit3,
 } from "lucide-react";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { createDonation } from "../store/slices/donationsSlice";
@@ -47,13 +50,13 @@ const DonationForm: React.FC = () => {
     pickupAddress: "",
     pickupLat: "",
     pickupLng: "",
-    pickupStartTime: "",
-    pickupEndTime: "",
     specialInstructions: "",
     allergens: [] as string[],
     isVegetarian: false,
     isVegan: false,
   });
+
+  const [isLocating, setIsLocating] = useState(false);
 
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>("");
@@ -175,13 +178,36 @@ const DonationForm: React.FC = () => {
       return;
     }
 
+    setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
         setFormData((prev) => ({
           ...prev,
-          pickupLat: position.coords.latitude.toString(),
-          pickupLng: position.coords.longitude.toString(),
+          pickupLat: lat.toString(),
+          pickupLng: lng.toString(),
         }));
+
+        // Reverse geocode to get readable address
+        try {
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+            { headers: { "Accept-Language": "en" } }
+          );
+          const data = await response.json();
+          if (data.display_name) {
+            setFormData((prev) => ({
+              ...prev,
+              pickupAddress: data.display_name,
+            }));
+          }
+        } catch {
+          // If reverse geocoding fails, leave address for manual entry
+        }
+
+        setIsLocating(false);
         dispatch(
           addToast({
             type: "success",
@@ -191,6 +217,7 @@ const DonationForm: React.FC = () => {
         );
       },
       (error) => {
+        setIsLocating(false);
         dispatch(
           addToast({
             type: "error",
@@ -211,7 +238,7 @@ const DonationForm: React.FC = () => {
     if (!formData.foodType) {
       newErrors.foodType = "Food type is required";
     }
-    if (!formData.quantity || parseFloat(formData.quantity) <= 0) {
+    if (!formData.quantity || Number(formData.quantity) <= 0) {
       newErrors.quantity = "Valid quantity is required";
     }
     if (!formData.expiryTime) {
@@ -222,12 +249,6 @@ const DonationForm: React.FC = () => {
     }
     if (!formData.pickupLat || !formData.pickupLng) {
       newErrors.pickupLat = "Location coordinates are required";
-    }
-    if (!formData.pickupStartTime) {
-      newErrors.pickupStartTime = "Pickup start time is required";
-    }
-    if (!formData.pickupEndTime) {
-      newErrors.pickupEndTime = "Pickup end time is required";
     }
 
     setErrors(newErrors);
@@ -263,7 +284,7 @@ const DonationForm: React.FC = () => {
           foodType: formData.foodType,
           foodName: formData.foodName,
           description: formData.description,
-          quantity: parseFloat(formData.quantity),
+          quantity: Math.round(Number(formData.quantity)),
           quantityUnit: formData.quantityUnit,
           expiryTime: formData.expiryTime,
           pickupLocation: {
@@ -271,8 +292,6 @@ const DonationForm: React.FC = () => {
             lat: parseFloat(formData.pickupLat),
             lng: parseFloat(formData.pickupLng),
           },
-          pickupStartTime: formData.pickupStartTime,
-          pickupEndTime: formData.pickupEndTime,
           imageUrl,
           specialInstructions: formData.specialInstructions,
           allergens: formData.allergens,
@@ -442,6 +461,7 @@ const DonationForm: React.FC = () => {
                     value={formData.quantity}
                     onChange={handleChange}
                     min="1"
+                    step="1"
                     className={errors.quantity ? "border-red-500" : ""}
                   />
                   {errors.quantity && (
@@ -471,76 +491,95 @@ const DonationForm: React.FC = () => {
                 </div>
               </div>
 
-              {/* Expiry & Pickup Times */}
-              <div className="grid md:grid-cols-3 gap-6">
-                <div className="space-y-2">
-                  <Label className="text-gray-700 font-semibold">
-                    <Clock className="w-4 h-4 inline mr-1" />
-                    Expiry Time *
-                  </Label>
-                  <Input
-                    type="datetime-local"
-                    name="expiryTime"
-                    value={formData.expiryTime}
-                    onChange={handleChange}
-                    className={errors.expiryTime ? "border-red-500" : ""}
-                  />
-                  {errors.expiryTime && (
-                    <p className="text-sm text-red-500">{errors.expiryTime}</p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-gray-700 font-semibold">
-                    Pickup Start *
-                  </Label>
-                  <Input
-                    type="datetime-local"
-                    name="pickupStartTime"
-                    value={formData.pickupStartTime}
-                    onChange={handleChange}
-                    className={errors.pickupStartTime ? "border-red-500" : ""}
-                  />
-                  {errors.pickupStartTime && (
-                    <p className="text-sm text-red-500">
-                      {errors.pickupStartTime}
-                    </p>
-                  )}
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-gray-700 font-semibold">
-                    Pickup End *
-                  </Label>
-                  <Input
-                    type="datetime-local"
-                    name="pickupEndTime"
-                    value={formData.pickupEndTime}
-                    onChange={handleChange}
-                    className={errors.pickupEndTime ? "border-red-500" : ""}
-                  />
-                  {errors.pickupEndTime && (
-                    <p className="text-sm text-red-500">{errors.pickupEndTime}</p>
-                  )}
-                </div>
+              {/* Expiry Time */}
+              <div className="space-y-2">
+                <Label className="text-gray-700 font-semibold">
+                  <Clock className="w-4 h-4 inline mr-1" />
+                  Expiry Time *
+                </Label>
+                <Input
+                  type="datetime-local"
+                  name="expiryTime"
+                  value={formData.expiryTime}
+                  onChange={handleChange}
+                  className={errors.expiryTime ? "border-red-500" : ""}
+                />
+                {errors.expiryTime && (
+                  <p className="text-sm text-red-500">{errors.expiryTime}</p>
+                )}
               </div>
 
               {/* Location */}
               <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label className="text-gray-700 font-semibold">
-                    <MapPin className="w-4 h-4 inline mr-1" />
-                    Pickup Location *
-                  </Label>
-                  <Button
+                <Label className="text-gray-700 font-semibold">
+                  <MapPin className="w-4 h-4 inline mr-1" />
+                  Pickup Location *
+                </Label>
+
+                {/* Location option buttons */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {/* Use Profile Location */}
+                  <button
                     type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={getCurrentLocation}
+                    disabled={!user?.address?.street}
+                    onClick={() => {
+                      if (user?.address) {
+                        const addr = [user.address.street, user.address.city, user.address.state, user.address.zipCode].filter(Boolean).join(", ");
+                        setFormData((prev) => ({
+                          ...prev,
+                          pickupAddress: addr,
+                          pickupLat: user.address?.coordinates?.lat?.toString() || "",
+                          pickupLng: user.address?.coordinates?.lng?.toString() || "",
+                        }));
+                        if (errors.pickupAddress || errors.pickupLat) {
+                          setErrors((prev) => ({ ...prev, pickupAddress: "", pickupLat: "" }));
+                        }
+                        dispatch(addToast({ type: "success", title: "Profile address loaded", message: "Your saved address has been applied" }));
+                      }
+                    }}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all ${
+                      !user?.address?.street
+                        ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed"
+                        : "border-gray-200 bg-white text-gray-700 hover:border-green-400 hover:bg-green-50 cursor-pointer"
+                    }`}
                   >
-                    <MapPin className="w-4 h-4 mr-1" />
-                    Use Current Location
-                  </Button>
+                    <Home className="w-5 h-5" />
+                    <span className="text-sm font-medium">Profile Address</span>
+                  </button>
+
+                  {/* Use Current Location */}
+                  <button
+                    type="button"
+                    disabled={isLocating}
+                    onClick={getCurrentLocation}
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 hover:border-blue-400 hover:bg-blue-50 transition-all cursor-pointer"
+                  >
+                    {isLocating ? (
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                    ) : (
+                      <Navigation className="w-5 h-5" />
+                    )}
+                    <span className="text-sm font-medium">
+                      {isLocating ? "Locating..." : "Current Location"}
+                    </span>
+                  </button>
+
+                  {/* Enter Manually */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        pickupAddress: "",
+                        pickupLat: "",
+                        pickupLng: "",
+                      }));
+                    }}
+                    className="flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-gray-200 bg-white text-gray-700 hover:border-orange-400 hover:bg-orange-50 transition-all cursor-pointer"
+                  >
+                    <Edit3 className="w-5 h-5" />
+                    <span className="text-sm font-medium">Enter Manually</span>
+                  </button>
                 </div>
 
                 <Input
@@ -554,27 +593,9 @@ const DonationForm: React.FC = () => {
                   <p className="text-sm text-red-500">{errors.pickupAddress}</p>
                 )}
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label className="text-sm text-gray-500">Latitude</Label>
-                    <Input
-                      name="pickupLat"
-                      placeholder="Latitude"
-                      value={formData.pickupLat}
-                      onChange={handleChange}
-                      className={errors.pickupLat ? "border-red-500" : ""}
-                    />
-                  </div>
-                  <div>
-                    <Label className="text-sm text-gray-500">Longitude</Label>
-                    <Input
-                      name="pickupLng"
-                      placeholder="Longitude"
-                      value={formData.pickupLng}
-                      onChange={handleChange}
-                    />
-                  </div>
-                </div>
+                {errors.pickupLat && (
+                  <p className="text-sm text-red-500">{errors.pickupLat}</p>
+                )}
               </div>
 
               {/* Dietary Info */}

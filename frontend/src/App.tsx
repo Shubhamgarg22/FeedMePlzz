@@ -9,34 +9,27 @@ import {
 } from "react-router-dom";
 import { Provider } from "react-redux";
 import { onAuthStateChanged } from "firebase/auth";
-import { Home, History, MessageSquare, Brain, User } from "lucide-react";
+import { UtensilsCrossed, ClipboardList, User } from "lucide-react";
 import { store } from "./store";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import { setUser, setLoading, logout } from "./store/slices/authSlice";
 import { auth } from "./config/firebase";
 import api from "./services/api";
 
-// Screens
 import HomeScreen from "./components/screen/home";
-import ClaimHistory from "./components/screen/claimHistory";
-import FeedbackScreen from "./components/screen/feedback";
-import AIInsight from "./components/screen/aiinsight";
-
-// Auth Components
+import MyClaimsScreen from "./components/screen/claimHistory";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import Profile from "./pages/Profile";
 
-// Bottom Navigation Component
+// Bottom Navigation
 const BottomNav: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
   const navItems = [
-    { path: "/", icon: Home, label: "Home" },
-    { path: "/history", icon: History, label: "History" },
-    { path: "/feedback", icon: MessageSquare, label: "Feedback" },
-    { path: "/insights", icon: Brain, label: "Insights" },
+    { path: "/", icon: UtensilsCrossed, label: "Browse Food" },
+    { path: "/my-claims", icon: ClipboardList, label: "My Claims" },
     { path: "/profile", icon: User, label: "Profile" },
   ];
 
@@ -49,14 +42,14 @@ const BottomNav: React.FC = () => {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center p-2 rounded-lg transition-colors ${
+              className={`flex flex-col items-center px-4 py-2 rounded-xl transition-colors ${
                 isActive
-                  ? "text-green-600 bg-green-50"
-                  : "text-gray-500 hover:text-gray-700"
+                  ? "text-orange-600 bg-orange-50"
+                  : "text-gray-400 hover:text-gray-600"
               }`}
             >
-              <item.icon className="w-5 h-5" />
-              <span className="text-xs mt-1">{item.label}</span>
+              <item.icon className={`w-5 h-5 ${isActive ? "stroke-[2.5]" : ""}`} />
+              <span className="text-[11px] mt-1 font-medium">{item.label}</span>
             </button>
           );
         })}
@@ -109,7 +102,7 @@ const AuthListener: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
             const response = await api.get("/auth/me");
-            dispatch(setUser(response.data));
+            dispatch(setUser(response.data.user));
           } catch (error) {
             console.error("Error fetching user:", error);
             dispatch(logout());
@@ -168,73 +161,13 @@ const AppRoutes: React.FC = () => {
 
   return (
     <Routes>
-      {/* Auth Routes */}
-      <Route
-        path="/login"
-        element={
-          isAuthenticated ? <Navigate to="/" replace /> : <Login />
-        }
-      />
-      <Route
-        path="/register"
-        element={
-          isAuthenticated ? <Navigate to="/" replace /> : <Register />
-        }
-      />
+      <Route path="/login" element={isAuthenticated ? <Navigate to="/" replace /> : <Login />} />
+      <Route path="/register" element={isAuthenticated ? <Navigate to="/" replace /> : <Register />} />
 
-      {/* Protected Routes */}
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <HomeScreen />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/history"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <ClaimHistory />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/feedback"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <FeedbackScreen />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/insights"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <AIInsight />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <AppLayout>
-              <Profile />
-            </AppLayout>
-          </ProtectedRoute>
-        }
-      />
+      <Route path="/" element={<ProtectedRoute><AppLayout><HomeScreen /></AppLayout></ProtectedRoute>} />
+      <Route path="/my-claims" element={<ProtectedRoute><AppLayout><MyClaimsScreen /></AppLayout></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><AppLayout><Profile /></AppLayout></ProtectedRoute>} />
 
-      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );

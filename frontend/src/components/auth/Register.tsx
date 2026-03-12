@@ -74,6 +74,7 @@ const Register: React.FC = () => {
 
       // Create user in backend
       await api.post("/auth/register", {
+        firebaseToken: token,
         name: formData.name,
         email: formData.email,
         phone: formData.phone,

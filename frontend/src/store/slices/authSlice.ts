@@ -63,8 +63,10 @@ export const registerUser = createAsyncThunk(
         userData.password
       );
 
+      const firebaseToken = await userCredential.user.getIdToken();
+
       const response = await authAPI.register({
-        firebaseUid: userCredential.user.uid,
+        firebaseToken,
         email: userData.email,
         name: userData.name,
         phone: userData.phone,
@@ -95,7 +97,11 @@ export const loginUser = createAsyncThunk(
         credentials.password
       );
 
-      const response = await authAPI.login({ role: "receiver" });
+      const currentUser = auth.currentUser;
+      if (!currentUser) throw new Error("Login failed");
+      const firebaseToken = await currentUser.getIdToken();
+
+      const response = await authAPI.login({ firebaseToken });
       return response.data.user;
     } catch (error: any) {
       return rejectWithValue(

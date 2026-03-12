@@ -100,8 +100,6 @@ export const donationsAPI = {
       lat: number;
       lng: number;
     };
-    pickupStartTime: string;
-    pickupEndTime: string;
     imageUrl?: string;
     specialInstructions?: string;
     allergens?: string[];

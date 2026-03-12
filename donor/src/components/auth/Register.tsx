@@ -116,7 +116,7 @@ const Register: React.FC = () => {
     );
 
     if (registerUser.fulfilled.match(result)) {
-      navigate("/dashboard");
+      navigate(formData.role === "receiver" ? "/browse" : "/dashboard");
     }
   };
 

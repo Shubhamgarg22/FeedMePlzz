@@ -50,11 +50,11 @@ const donationSchema = new mongoose.Schema({
   },
   pickupStartTime: {
     type: Date,
-    required: true,
+    default: null,
   },
   pickupEndTime: {
     type: Date,
-    required: true,
+    default: null,
   },
   imageUrl: {
     type: String,

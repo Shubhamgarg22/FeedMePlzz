@@ -120,6 +120,17 @@ const DonationHistory: React.FC = () => {
     });
   };
 
+  const getUnitLabel = (unit: string) => {
+    const unitLabels: Record<string, string> = {
+      meals: "Meals",
+      kg: "Kg",
+      items: "Items",
+      servings: "Servings",
+      boxes: "Boxes",
+    };
+    return unitLabels[unit] || unit;
+  };
+
   const filteredDonations = myDonations.filter((donation) => {
     const matchesSearch =
       donation.foodName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -286,7 +297,7 @@ const DonationHistory: React.FC = () => {
                                     <div className="flex flex-wrap gap-4 text-sm text-gray-500">
                                       <span className="flex items-center gap-1">
                                         <Package className="w-4 h-4" />
-                                        {donation.quantity} {donation.quantityUnit}
+                                        {donation.quantity} {getUnitLabel(donation.quantityUnit)}
                                       </span>
                                       <span className="flex items-center gap-1">
                                         <Calendar className="w-4 h-4" />

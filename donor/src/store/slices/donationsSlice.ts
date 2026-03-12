@@ -21,8 +21,8 @@ export interface Donation {
     lat: number;
     lng: number;
   };
-  pickupStartTime: string;
-  pickupEndTime: string;
+  pickupStartTime?: string;
+  pickupEndTime?: string;
   imageUrl?: string;
   status: "available" | "accepted" | "picked_up" | "delivered" | "cancelled" | "expired";
   specialInstructions?: string;
@@ -56,6 +56,7 @@ interface DonationsState {
     status: string;
     foodType: string;
     search: string;
+    distance: number;
   };
 }
 
@@ -75,6 +76,7 @@ const initialState: DonationsState = {
     status: "all",
     foodType: "all",
     search: "",
+    distance: 10,
   },
 };
 

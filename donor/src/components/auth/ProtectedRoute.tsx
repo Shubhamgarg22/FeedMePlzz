@@ -43,7 +43,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
       user.role === "admin"
         ? "/admin"
         : user.role === "receiver"
-        ? "/receiver"
+        ? "/browse"
         : "/dashboard";
     return <Navigate to={redirectPath} replace />;
   }

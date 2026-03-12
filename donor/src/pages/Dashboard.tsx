@@ -225,7 +225,7 @@ const Dashboard: React.FC = () => {
                             {donation.foodName}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {donation.quantity} {donation.quantityUnit} •{" "}
+                            {donation.quantity} {({meals: "Meals", kg: "Kg", items: "Items", servings: "Servings", boxes: "Boxes"} as Record<string, string>)[donation.quantityUnit] || donation.quantityUnit} •{" "}
                             {formatDate(donation.createdAt)}
                           </p>
                         </div>

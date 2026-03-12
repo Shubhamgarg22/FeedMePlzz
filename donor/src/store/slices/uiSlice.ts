@@ -21,6 +21,7 @@ interface UIState {
   modals: Record<string, Modal>;
   isLoading: boolean;
   globalError: string | null;
+  currentLocation: { lat: number; lng: number } | null;
 }
 
 const initialState: UIState = {
@@ -30,6 +31,7 @@ const initialState: UIState = {
   modals: {},
   isLoading: false,
   globalError: null,
+  currentLocation: null,
 };
 
 const uiSlice = createSlice({
@@ -74,6 +76,12 @@ const uiSlice = createSlice({
     setGlobalError: (state, action: PayloadAction<string | null>) => {
       state.globalError = action.payload;
     },
+    setCurrentLocation: (
+      state,
+      action: PayloadAction<{ lat: number; lng: number } | null>
+    ) => {
+      state.currentLocation = action.payload;
+    },
   },
 });
 
@@ -88,6 +96,7 @@ export const {
   closeModal,
   setGlobalLoading,
   setGlobalError,
+  setCurrentLocation,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

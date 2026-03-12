@@ -5,6 +5,7 @@ import { AnimatePresence } from "framer-motion";
 import { onAuthStateChanged } from "firebase/auth";
 import { store } from "./store";
 import { useAppDispatch } from "./store/hooks";
+import { useAppSelector } from "./store/hooks";
 import { setUser, setLoading } from "./store/slices/authSlice";
 import { auth } from "./config/firebase";
 import api from "./services/api";
@@ -22,8 +23,28 @@ import DonationHistory from "./pages/DonationHistory";
 import Profile from "./pages/Profile";
 import Notifications from "./pages/Notifications";
 
+// Receiver Pages
+import BrowseFood from "./pages/receiver/BrowseFood";
+import MyClaims from "./pages/receiver/MyClaims";
+import ReceiverProfile from "./pages/receiver/ReceiverProfile";
+
 // Styles
 import "./App.css";
+
+// Role-based redirect component
+const RoleBasedRedirect: React.FC = () => {
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+
+  if (!isAuthenticated || !user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (user.role === "receiver") {
+    return <Navigate to="/browse" replace />;
+  }
+
+  return <Navigate to="/dashboard" replace />;
+};
 
 // Auth State Listener
 const AuthListener: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -46,7 +67,7 @@ const AuthListener: React.FC<{ children: React.ReactNode }> = ({ children }) => 
             localStorage.setItem("token", token);
             api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
             const response = await api.get("/auth/me");
-            dispatch(setUser(response.data));
+            dispatch(setUser(response.data.user));
           } catch (error) {
             console.error("Error fetching user:", error);
             localStorage.removeItem("token");
@@ -135,9 +156,35 @@ const App: React.FC = () => {
               }
             />
 
+            {/* Protected Routes - Receiver Only */}
+            <Route
+              path="/browse"
+              element={
+                <ProtectedRoute allowedRoles={["receiver"]}>
+                  <BrowseFood />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/my-claims"
+              element={
+                <ProtectedRoute allowedRoles={["receiver"]}>
+                  <MyClaims />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/receiver/profile"
+              element={
+                <ProtectedRoute allowedRoles={["receiver"]}>
+                  <ReceiverProfile />
+                </ProtectedRoute>
+              }
+            />
+
             {/* Default Redirects */}
-            <Route path="/" element={<Navigate to="/dashboard" replace />} />
-            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+            <Route path="/" element={<RoleBasedRedirect />} />
+            <Route path="*" element={<RoleBasedRedirect />} />
           </Routes>
         </AnimatePresence>
         <Toaster />
